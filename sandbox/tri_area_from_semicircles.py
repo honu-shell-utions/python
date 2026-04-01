@@ -5,7 +5,7 @@
 #with the math and to learn some Python.
 #  -----------------------------------------------------------------------------
 #jim mccleery
-#March 27, 2026
+#April 1, 2026
 #Kona, HI
 #  -----------------------------------------------------------------------------
 from math import pi, sin, cos, sqrt, asin
