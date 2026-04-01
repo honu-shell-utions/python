@@ -1,4 +1,7 @@
 """
+https://youtu.be/tY_x2UJeBgA?si=qrzzVot8Y-mAFGUT
+
+from Mind Your Decisions: Two Tangent Circles
 Interactive geometry drawing for a rectangle and two tangent circles
 
 Change the values of:
