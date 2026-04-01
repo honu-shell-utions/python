@@ -131,7 +131,7 @@ else:
     plot_circle(x - r, height - r, r)
 
     # Labels
-    plt.text(-0.8, height / 2, f"{height}")
+    plt.text(-2, height / 2, f"{height}")
     plt.text(R - 1.2, R, f"R = {R}")
     plt.text(x - r - 1.2, height - r, f"r = {r}")
 
