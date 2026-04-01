@@ -1,5 +1,5 @@
 #from Andy Math
-#https://youtu.be/vRjydDx-t5E?si=MRUL7pcRCGu6NfbL
+#https://youtu.be/5ZoY3tXeQOs?si=jylEpV9W1utR6LoJ
 #this is not a cool analytical solution like Andy provides but is more of
 #a exploritory, it's a let's make a guess type of solution.  It's a fun way to play
 #with the math and to learn some Python.
