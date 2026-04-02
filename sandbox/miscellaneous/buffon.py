@@ -105,7 +105,7 @@ for k in range(drops):
         # After (k + 1) drops, estimated P = hits / (k + 1),
         # so estimated pi = 1 / P = (k + 1) / hits.
         pi_est = (k + 1) / hits
-        ax.set_title(f"Estimated pi = {pi_est:.4f}")
+        ax.set_title(f"Estimate for pi = {pi_est:.4f}")
 
         plt.pause(dt)
 
