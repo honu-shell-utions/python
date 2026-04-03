@@ -147,7 +147,7 @@ def main():
     # -------------------------------------------------------------------------
     red_area = (pi / 2) * (r2 ** 2 + r3 ** 2)
 
-    plt.title("Red Area = " + str(round(red_area, 3)))
+    plt.title("Red Area = " + str(round(red_area, 2)))
     plt.axis("equal")
     plt.show()
 
