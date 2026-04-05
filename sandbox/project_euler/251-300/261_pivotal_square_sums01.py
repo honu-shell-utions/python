@@ -17,6 +17,7 @@ from sympy.ntheory.primetest import is_square
 
 def twice_pronic(n):
     """
+
     Return 2*n*(n + 1).
 
     The product n*(n + 1) is called a pronic number, so this function returns
