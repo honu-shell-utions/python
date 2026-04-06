@@ -3,7 +3,7 @@ Project Euler 286
 Barbara's basketball problem
 
 Jim McCleery
-April 5, 2026
+April 6, 2026
 Kailua-Kona, HI
 
 Problem summary
