@@ -10,9 +10,8 @@ This program searches numerically for a configuration in which the total
 blue area is approximately 140. Once such a configuration is found, the
 figure is drawn.
 
-The picture consists of a large triangle subdivided into alternating
-colored bands.  The band boundaries are created by marking equally spaced
-points on the two slanted sides and then joining corresponding points.
+The picture consists only of the large triangle and the alternating
+red and blue stripes.
 """
 
 from math import pi, sin, cos, tan
@@ -23,16 +22,6 @@ import matplotlib.pyplot as plt
 def polygon_area(vertices):
     """
     Compute the area of a polygon using the shoelace formula.
-
-    Parameters
-    ----------
-    vertices : list of (x, y) tuples
-        The vertices listed in order around the polygon.
-
-    Returns
-    -------
-    float
-        The area of the polygon.
     """
     area = 0.0
     n = len(vertices)
@@ -47,26 +36,15 @@ def polygon_area(vertices):
 
 def polygon_fill_coordinates(vertices):
     """
-    Convert polygon vertices into x- and y-coordinate lists suitable
-    for matplotlib's fill() function.
+    Convert polygon vertices into x- and y-coordinate lists for fill().
     """
     x_coords, y_coords = zip(*vertices)
     return list(x_coords) + [x_coords[0]], list(y_coords) + [y_coords[0]]
 
 
-def plot_line(ax, p, q, **kwargs):
-    """
-    Plot the line segment joining points p and q.
-    """
-    ax.plot([p[0], q[0]], [p[1], q[1]], **kwargs)
-
-
 def build_band_vertices(k, lower_left, lower_right, s1, s2, alpha, beta, x_c):
     """
-    Build the quadrilateral corresponding to level k.
-
-    The lower edge is determined by the previous level.
-    The upper edge is determined by the new points at level k.
+    Build the quadrilateral for stripe level k.
     """
     upper_left = (k * s1 * cos(alpha), k * s1 * sin(alpha))
     upper_right = (x_c + k * s2 * cos(pi - beta), k * s2 * sin(pi - beta))
@@ -76,17 +54,14 @@ def build_band_vertices(k, lower_left, lower_right, s1, s2, alpha, beta, x_c):
 
 def compute_colored_areas(alpha, beta, h):
     """
-    Construct the geometry for a given alpha, beta, and h,
-    then compute the total blue and red areas.
+    Build the striped triangle and compute the total blue and red areas.
     """
     a = h / tan(alpha)
     b = h / tan(beta)
 
-    # Equal step lengths along the slanted sides.
     s1 = h / sin(alpha)
     s2 = h / sin(beta)
 
-    # Main triangle vertices.
     A = (0.0, 0.0)
     B = (8 * a, 8 * h)
     C = (8 * a + 8 * b, 0.0)
@@ -115,9 +90,6 @@ def compute_colored_areas(alpha, beta, h):
     return {
         "alpha": alpha,
         "beta": beta,
-        "h": h,
-        "a": a,
-        "b": b,
         "s1": s1,
         "s2": s2,
         "A": A,
@@ -144,75 +116,9 @@ def find_configuration(target_blue_area=140.0, tolerance=1e-3):
             return data
 
 
-def add_labels(ax, data):
-    """
-    Add geometric labels to the finished figure.
-    """
-    alpha = data["alpha"]
-    beta = data["beta"]
-    s1 = data["s1"]
-    s2 = data["s2"]
-    A = data["A"]
-    B = data["B"]
-    C = data["C"]
-    blue_area = data["blue_area"]
-    red_area = data["red_area"]
-
-    x0, y0 = A
-    x1, y1 = B
-    x2, y2 = C
-
-    # ---- Label the main vertices ----
-    ax.text(x0 - 0.35, y0 - 0.35, "A", fontsize=12)
-    ax.text(x1, y1 + 0.35, "B", fontsize=12)
-    ax.text(x2 + 0.20, y2 - 0.35, "C", fontsize=12)
-
-    # ---- Foot of the altitude ----
-    D = (x1, 0.0)
-    ax.plot([x1, x1], [0.0, y1], "--", color="black", linewidth=1)
-    ax.text(D[0] + 0.12, D[1] + 0.12, "D", fontsize=11)
-    ax.text(x1 + 0.15, y1 / 2, r"$8h$", fontsize=11)
-
-    # ---- Angle labels ----
-    ax.text(
-        x0 + 0.9 * cos(alpha / 2),
-        y0 + 0.9 * sin(alpha / 2),
-        r"$\alpha$",
-        fontsize=12
-    )
-
-    ax.text(
-        x2 + 0.9 * cos(pi - beta / 2),
-        y2 + 0.9 * sin(pi - beta / 2),
-        r"$\beta$",
-        fontsize=12
-    )
-
-    # ---- Level labels along the slanted sides ----
-    #
-    # The point at level k on the left side is:
-    #     L_k = (k s1 cos(alpha), k s1 sin(alpha))
-    #
-    # The corresponding point at level k on the right side is:
-    #     R_k = (x2 + k s2 cos(pi-beta), k s2 sin(pi-beta))
-    #
-    # These labels help students see how the bands are built.
-    for k in range(9):
-        left_k = (k * s1 * cos(alpha), k * s1 * sin(alpha))
-        right_k = (x2 + k * s2 * cos(pi - beta), k * s2 * sin(pi - beta))
-
-        # Slight offsets so the labels do not sit directly on the boundary lines.
-        ax.text(left_k[0] - 0.45, left_k[1] + 0.08, f"$k={k}$", fontsize=9)
-        ax.text(right_k[0] + 0.12, right_k[1] + 0.08, f"$k={k}$", fontsize=9)
-
-        # Mark the boundary points themselves.
-        ax.plot(left_k[0], left_k[1], "ko", markersize=3)
-        ax.plot(right_k[0], right_k[1], "ko", markersize=3)
-
-
 def draw_configuration(data):
     """
-    Draw the colored figure and add labels.
+    Draw only the large triangle and the alternating red/blue stripes.
     """
     alpha = data["alpha"]
     beta = data["beta"]
@@ -225,7 +131,6 @@ def draw_configuration(data):
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Reset the lower boundary before drawing the bands.
     lower_left = A
     lower_right = C
 
@@ -243,37 +148,28 @@ def draw_configuration(data):
             alpha=0.75
         )
 
-        # Optional: draw the strip boundary segment between corresponding
-        # level-k points so students can see the subdivision lines clearly.
-        ax.plot(
-            [upper_left[0], upper_right[0]],
-            [upper_left[1], upper_right[1]],
-            color="black",
-            linewidth=0.8
-        )
-
         lower_left = upper_left
         lower_right = upper_right
 
-    # Draw the outer triangle.
-    plot_line(ax, A, B, color="black", linewidth=2)
-    plot_line(ax, B, C, color="black", linewidth=2)
-    plot_line(ax, A, C, color="black", linewidth=2)
-
-    add_labels(ax, data)
+    ax.plot([A[0], B[0]], [A[1], B[1]], color="black", linewidth=2)
+    ax.plot([B[0], C[0]], [B[1], C[1]], color="black", linewidth=2)
+    ax.plot([A[0], C[0]], [A[1], C[1]], color="black", linewidth=2)
 
     ax.set_title(f"Striped Triangle Figure   (Red Area = {red_area:.1f})")
     ax.set_aspect("equal")
-    plt.show()
+    ax.axis("off")
 
-
+    return fig
 def main():
     """
     Main driver for the program.
     """
-    data = find_configuration(target_blue_area=140.0, tolerance=1e-3)
-    draw_configuration(data)
-
+    for _ in range(10):
+        data = find_configuration(target_blue_area=140.0, tolerance=1e-2)
+        fig = draw_configuration(data)
+        plt.show(block=False)
+        plt.pause(0.5)
+        plt.close(fig)
 
 if __name__ == "__main__":
     main()
