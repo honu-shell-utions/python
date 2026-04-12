@@ -2,7 +2,7 @@
 Graphical illustration for a Mind Your Decisions geometry problem.
 
 Video:
-https://youtu.be/5ZoY3tXeQOs?si=RSvHYBJQeIVE7md9
+https://youtu.be/YNxtkBAQfaE?si=dAKX0OEl4jZ1LPwt
 The key result is that the shaded area is always pi.
 
 Jim McCleery
