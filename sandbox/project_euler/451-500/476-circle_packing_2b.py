@@ -22,7 +22,6 @@ Find S(1803) rounded to 5 decimal places behind the decimal point.
 def law_of_cosines(d1, d2, side):
     """
     Return the angle opposite 'side' in a triangle with side lengths d1, d2, side.
-
     Returns:
         (angle_in_radians, True) if successful
         (0, False) otherwise
