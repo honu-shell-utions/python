@@ -16,7 +16,7 @@ sqrt(3) = 1/2*s*s*sin(60)
 sqrt(3) = 1/2*s*s*sqrt(3)/2
 4 = s*s
 s = 2
-us s to find the length of the two equal segments, law of cosines,
+use s to find the length of the two equal segments, law of cosines,
 call it a.
 52 = (s+a)**2 + a**2 -2(s+a)(a)*cos(60)
 a = 6
