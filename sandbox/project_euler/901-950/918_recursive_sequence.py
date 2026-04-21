@@ -81,5 +81,6 @@ print('n =\t', n, '\tSum =', sum_seq(n))
 # Stop timing
 end_time = time.perf_counter()
 
+
 # Report elapsed runtime
 print(f"Execution time: {end_time - start_time:.6f} seconds\n")
