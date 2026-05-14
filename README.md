@@ -27,7 +27,7 @@ A great collection of problems from various sources put together by MIT.
 https://mathnet.csail.mit.edu
 
 
-## 'miscellaneous'
+## `miscellaneous`
 
 Stuff that has no other home.
 
