@@ -63,6 +63,25 @@ def polygon_fill_coordinates(vertices):
 
 
 # -----------------------------------------------------------------------------
+def label_dimension(x1, y1, x2, y2, text, dx=0, dy=0):
+    """
+    Add a dimension label between two points.
+    """
+    xm = (x1 + x2) / 2 + dx
+    ym = (y1 + y2) / 2 + dy
+
+    plt.text(
+        xm,
+        ym,
+        text,
+        ha="center",
+        va="center",
+        fontsize=10,
+        bbox=dict(facecolor="white", edgecolor="none", alpha=0.8),
+    )
+
+
+# -----------------------------------------------------------------------------
 def draw_diagram(extra_length):
     """
     Draw one version of the geometric diagram.
@@ -108,18 +127,34 @@ def draw_diagram(extra_length):
 
     # Compute and display the area of the red triangle.
     area = polygon_area(red_triangle)
-    plt.title(f"Area of the red triangle = {area:0.3f}")
+    plt.title(
+        f"Area of the red triangle = {area:0.3f}     "
+        f"extra length = {extra_length:0.3f}"
+    )
+
+    # Add dimension labels.
+    label_dimension(x0, y0, x1, y1, "3", dy=0.25)
+    label_dimension(x1, y1, x2, y2, f"{extra_length:0.2f}", dy=0.25)
+    label_dimension(x2, y2, x3, y3, "4", dy=0.25)
+
+    label_dimension(x3, y3, x4, y4, "4", dx=0.35)
+    label_dimension(x1, y1, x6, y6, "3", dx=0.35)
+    label_dimension(x6, y6, x7, y7, "3", dy=-0.25)
+    label_dimension(x5, y5, x4, y4, "4", dy=-0.25)
 
     # Make equal units on the x-axis and y-axis so the geometry is not distorted.
     plt.axis("equal")
 
-    # Display the finished picture.
-    plt.show()
-
+    # Give the labels a little breathing room.
+    plt.xlim(-1, x3 + 1)
+    plt.ylim(-5, max(y8, 0) + 1)
 
 # -----------------------------------------------------------------------------
 # Draw 10 random versions of the diagram.
 # The red triangle changes shape, but its area stays the same.
 for _ in range(10):
+    plt.cla()
     extra_length = uniform(2, 10)
     draw_diagram(extra_length)
+    plt.pause(1.5)
+plt.show()
