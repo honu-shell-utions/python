@@ -87,9 +87,9 @@ def plot_line(x1, y1, x2, y2):
 # Set initial configurations
 r = 1
 throws = 10**4  # Number of random points to drop per loop to estimate area
-max_area = -10**3
-min_area = 10**3
+accumulated_area = 0
 x0, y0 = 0, 0   # Center of the main circle
+counter = 0
 
 # Run the simulation 1,000,000 times
 for _ in range(10**6):
@@ -101,6 +101,8 @@ for _ in range(10**6):
     # Check if the point falls inside the unit circle; if not, skip this loop
     if xa**2 + ya**2 > 1:
         continue
+    else:
+        counter += 1
 
     # Calculate coordinates for horizontal and vertical lines intersecting the circle
     x1, y1 = sqrt(1 - ya**2), ya
@@ -139,18 +141,12 @@ for _ in range(10**6):
         if in_area01 or in_area02 or in_area03 or in_area04:
             plot(x, y, '.')  # Mark the hit point on the graph
             hits += 1
-            
+
     # Calculate area based on hit ratio multiplied by the bounding square's area (4)
-    area = (hits / throws) * 4
+    accumulated_area += (hits / throws) * 4
     
-    # Track the historical minimum and maximum calculated areas
-    if area < min_area:
-        min_area = area
-    if area > max_area:
-        max_area = area
-        
     # Update the graph title text with current stats
-    title(f'Min Area = {min_area:0.4f}, Max Area = {max_area:0.4f}, Average = {(max_area+min_area)/2}')
+    title(f'Average Shaded Area = {accumulated_area/counter:0.5f}')
     axis('equal')  # Ensure the circle looks perfectly round on the screen
     pause(0.5)     # Pause briefly so the viewer can see the live frame animation
 

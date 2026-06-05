@@ -15,7 +15,8 @@ from math import sqrt       # Used to calculate the square root of a number
 # -----------------------------------------------------------------------------
 r = 1            # Radius of the main circle
 throws = 10**4   # Number of random points (darts) thrown to estimate the area
-
+counter = 0
+total_area = 0
 # x0, y0 represent the origin/center of the circle at (0, 0)
 x0, y0 = 0, 0
 
@@ -32,6 +33,8 @@ for k in range(10**6):
     # If it is outside, skip the rest of this loop and try a new point.
     if xa**2 + ya**2 > 1:
         continue
+    else:
+        counter += 1
 
     # Calculate coordinates on the boundary of the circle based on our random point
     x1, y1 = sqrt(1 - ya**2), ya
@@ -65,8 +68,8 @@ for k in range(10**6):
             
     # Calculate the estimated area of the region.
     # (hits / throws) gives the ratio. Multiplying by 4 scales it to the area of the bounding square (2x2).
-    area = (hits / throws) * 4
+    total_area += (hits / throws) * 4
     
-    # Every 1,000 iterations, print out the current minimum and maximum areas
+    # Every 1,000 iterations, print out the current average area
     if k % 10**3 == 0:  
-        print(area)
+        print(total_area/counter)
