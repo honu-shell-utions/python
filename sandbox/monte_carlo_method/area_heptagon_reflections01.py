@@ -7,7 +7,7 @@
 # https://mathnet.mit.edu/explorer.html?p=usa_2025_8a437a
 # =============================================================================
 
-from math import pi, sqrt, acos, sin, cos
+from math import pi, sqrt, sin, cos, asin
 import matplotlib.pyplot as plt
 from random import uniform
 
@@ -68,42 +68,35 @@ def polygon_fill_coordinates(vertices):
 # --- MAIN ENGINE / COORDINATE SEARCH LOOP ---
 
 while True:
-    BC_len = uniform(115, 117)
-    
-    alpha, _ = law_of_cosines(BC_len, 28, 91)
-    if alpha > pi / 2:
-        continue
-        
-    beta, _ = law_of_cosines(BC_len, 91, 28)
+    beta = uniform(2.4,2.5)
+    gamma = asin(28*sin(beta)/91)
+    alpha = pi-beta-gamma
+    BC_len = 91*sin(alpha)/sin(beta)
     
     # Establish the coordinate space mapped directly to the original graphic
     B = (0.0, 0.0)
     C = (BC_len, 0.0)
-    A = (28 * cos(alpha), 28 * sin(alpha))
-    F = (24 * cos(alpha), 24 * sin(alpha))
-    D = (8 * cos(alpha), 8 * sin(alpha))
-    G = (BC_len + 78 * cos(pi - beta), 78 * sin(pi - beta))
-    E = (BC_len + 26 * cos(pi - beta), 26 * sin(pi - beta))
-    
+    A = (28 * cos(beta), 28 * sin(beta))
+    F = (BC_len + 78 * cos(pi-gamma), 78 * sin(pi-gamma))
+    D = (24 * cos(beta), 24 * sin(beta))
+    G = (BC_len + 26 * cos(pi - gamma), 26 * sin(pi - gamma))
+    E = (8 * cos(beta), 8 * sin(beta))
+
     # Derived coordinate points M and N
-    d1 = distance(F[0], F[1], G[0], G[1])
-    M = (F[0] + 2 * d1, F[1])
-    
-    d2 = distance(D[0], D[1], E[0], E[1])
-    N = (D[0] - d2, D[1])
+    M = (2*F[0] - D[0], 2*F[1] - D[1])
+    N = (2*E[0] - G[0], 2*E[1] - G[1])
 
     # Target polygon for checking loop termination condition (DFGE)
     check_vertices = [D, E, G, F]
     area = polygon_area(check_vertices)
     
-    if abs(area - 288) < 0.0001:
+    if abs(area - 288) < 0.00001:
         break
-
 
 # --- GRAPH RENDERING AND VISUALIZATION ---
 
-# Define the final layout points for our primary red shaded polygon (D M A G N B C)
-vertices = [D, M, A, G, N, B, C]
+# Define the final layout points for our primary red shaded polygon
+vertices = [A, M, E, C, B, N, F]
 final_area = polygon_area(vertices)
 
 # Fill the inside of the calculated polygon with transparent red
@@ -113,12 +106,14 @@ plt.fill(*polygon_fill_coordinates(vertices), color='red', alpha=0.3, edgecolor=
 plot_line(B, C)
 plot_line(A, C)
 plot_line(B, A)
-plot_line(F, M)
-plot_line(D, M)
-plot_line(E, N)
+
 plot_line(G, N)
-plot_line(B, N)
-plot_line(E, N)
+plot_line(D, M)
+
+plot_line(F, N)
+plot_line(M, E)
+plot_line(E, C)
+plot_line(A, M)
 
 # Label the points
 plt.text(*A,'A')
@@ -137,3 +132,4 @@ plt.axis('off')
 # Display target calculation summary
 plt.title(f'Red polygon has an area of {final_area:0.3f}.', fontsize=14)
 plt.show()
+
