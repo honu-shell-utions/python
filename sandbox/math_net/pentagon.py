@@ -14,8 +14,6 @@ Construct a convex cyclic pentagon PABCD satisfying:
 
 The program draws the pentagon and computes PB.
 
-https://mathnet.mit.edu/explorer.html?view=detail&problem=a7a7476e317e3a3580cae428877ca8c29b28852128482708b4ff8569b1ab0e37&mode=country&country=United+States
-
 """
 
 from math import acos, cos, hypot, pi, sin, sqrt

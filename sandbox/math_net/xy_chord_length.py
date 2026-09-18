@@ -3,8 +3,6 @@ Jim McCleery
 April 28, 2026
 Kailua-Kona, HI
 
-Source:
-https://mathnet.mit.edu/explorer.html?view=problems&mode=country&country=United+States
 """
 
 from math import acos, cos, pi, sin, sqrt

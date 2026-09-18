@@ -1,6 +1,3 @@
-"""
-https://mathnet.mit.edu/explorer.html?view=problems&mode=country&country=United+States
-"""
 
 from math import cos, sin, radians, hypot, atan2
 import matplotlib.pyplot as plt
