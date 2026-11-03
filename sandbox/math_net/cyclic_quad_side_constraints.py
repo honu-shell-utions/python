@@ -1,221 +1,187 @@
-# =============================================================================
-# Jim McCleery
-# October 3, 2026
-# Kailua-Kona, HI
-#
-# Geometry Problem Reference:
-# https://mathnet.mit.edu/explorer.html?p=nmo_2016_615ff2
-#
-# Problem:
-# Let ABCD be a cyclic quadrilateral satisfying AB = AD and AB + BC = CD.
-# Determine angle CDA.
-# =============================================================================
+"""
+Jim McCleery
+November 2, 2026
+Kailua-Kona, HI
 
-from math import acos, cos, degrees, pi, sin, sqrt, tan
+https://mathnet.mit.edu/explorer.html?p=nmo_2016_615ff2
+
+Problem:
+Let ABCD be a cyclic quadrilateral satisfying AB = AD and AB + BC = CD.
+Determine angle CDA.
+"""
+
+from math import acos, atan, cos, degrees, pi, sin, sqrt
 from random import uniform
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-# -----------------------------------------------------------------------------
-# Geometry Helper Functions
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Helper Geometry Functions
+# Points are represented as 2D tuples: (x, y)
+# =============================================================================
 
-def distance(point_a, point_b):
+def distance(A, B):
     """
-    Calculate the straight-line (Euclidean) distance between two points.
-    Each point is a tuple containing (x, y) coordinates.
+    Calculate the straight-line (Euclidean) distance between two points:
+    distance = sqrt((x2 - x1)^2 + (y2 - y1)^2)
     """
-    x1, y1 = point_a
-    x2, y2 = point_b
+    x1, y1 = A
+    x2, y2 = B
     return sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
-def quadratic_equation(a, b, c):
+def circle_through_points(A, B, C):
     """
-    Solve the quadratic equation: a*x^2 + b*x + c = 0.
-    Returns (x1, x2, True) if real solutions exist, or (0, 0, False) if not.
+    Find the unique circumcircle passing through three non-collinear points.
+
+    Returns:
+        (center, radius, True) on success, or ((0, 0), 0, False) on failure.
     """
+    x1, y1 = A
+    x2, y2 = B
+    x3, y3 = C
+
     try:
-        discriminant = b**2 - 4 * a * c
-        if discriminant < 0:
-            return 0, 0, False
+        s1 = x1**2 + y1**2
+        s2 = x2**2 + y2**2
+        s3 = x3**2 + y3**2
 
-        root = sqrt(discriminant)
-        x1 = (-b - root) / (2 * a)
-        x2 = (-b + root) / (2 * a)
+        # Determinants derived from the standard circle equation
+        M11 = (
+            x1 * y2 + x2 * y3 + x3 * y1
+            - x2 * y1 - x3 * y2 - x1 * y3
+        )
+        M12 = (
+            s1 * y2 + s2 * y3 + s3 * y1
+            - s2 * y1 - s3 * y2 - s1 * y3
+        )
+        M13 = (
+            s1 * x2 + s2 * x3 + s3 * x1
+            - s2 * x1 - s3 * x2 - s1 * x3
+        )
 
-        # Sort so that x1 is always the smaller root
-        if x1 > x2:
-            x1, x2 = x2, x1
+        center_x = 0.5 * M12 / M11
+        center_y = -0.5 * M13 / M11
+        center = (center_x, center_y)
 
-        return x1, x2, True
+        radius = distance(A, center)
+        return center, radius, True
+
     except (ValueError, ZeroDivisionError):
-        return 0, 0, False
+        return (0, 0), 0, False
 
 
-def define_circle_from_points(point_a, point_b, point_c):
+def law_of_cosines(side_a, side_b, side_c):
     """
-    Find the unique circle passing through three non-collinear points.
-    Returns the center point as an (x, y) tuple and the circle's radius.
-    """
-    x1, y1 = point_a
-    x2, y2 = point_b
-    x3, y3 = point_c
+    Find the angle (in radians) opposite side_c using the Law of Cosines:
+        c^2 = a^2 + b^2 - 2*a*b*cos(C)
+        cos(C) = (a^2 + b^2 - c^2) / (2*a*b)
 
-    temp = x2**2 + y2**2
-    bc = (x1**2 + y1**2 - temp) / 2
-    cd = (temp - x3**2 - y3**2) / 2
-
-    determinant = (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2)
-
-    center_x = (bc * (y2 - y3) - cd * (y1 - y2)) / determinant
-    center_y = ((x1 - x2) * cd - (x2 - x3) * bc) / determinant
-
-    center = (center_x, center_y)
-    radius = distance(center, point_a)
-
-    return center, radius
-
-
-def line_circle_intersection(center, radius, line):
-    """
-    Find the two intersection points between a circle and a line y = m*x + b.
-    Returns (P1, P2, True) if intersection points exist.
-    """
-    cx, cy = center
-    m, b = line
-
-    # Substitute y = m*x + b into the equation of a circle: (x - cx)^2 + (y - cy)^2 = r^2
-    # Expanding produces a standard quadratic equation: A*x^2 + B*x + C = 0
-    quad_a = 1 + m**2
-    quad_b = -2 * cx + 2 * m * b - 2 * m * cy
-    quad_c = cx**2 + b**2 - 2 * b * cy + cy**2 - radius**2
-
-    x1, x2, success = quadratic_equation(quad_a, quad_b, quad_c)
-    if not success:
-        return (0, 0), (0, 0), False
-
-    p1 = (x1, m * x1 + b)
-    p2 = (x2, m * x2 + b)
-
-    return p1, p2, True
-
-
-def law_of_cosines(side1, side2, opposite_side):
-    """
-    Calculate the interior angle opposite to 'opposite_side' using the Law of Cosines.
-    Returns the angle in radians.
+    Returns:
+        (angle_in_radians, True) on success, or (0, False) on failure.
     """
     try:
-        cosine_val = (side1**2 + side2**2 - opposite_side**2) / (2 * side1 * side2)
-        # Clamp to [-1, 1] to prevent tiny floating-point rounding errors from failing acos
+        cosine_val = (side_a**2 + side_b**2 - side_c**2) / (2 * side_a * side_b)
+        
+        # Clamp between -1 and 1 to guard against slight floating-point rounding errors
         cosine_val = max(-1.0, min(1.0, cosine_val))
         return acos(cosine_val), True
+
     except (ValueError, ZeroDivisionError):
         return 0, False
 
 
-# -----------------------------------------------------------------------------
-# Plotting Helper Functions
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Plotting Helpers
+# =============================================================================
 
-def plot_line(point_a, point_b, color="black", linestyle="-", linewidth=1.5):
-    """Draw a straight line segment connecting two points."""
-    plt.plot([point_a[0], point_b[0]], [point_a[1], point_b[1]], color=color, linestyle=linestyle, linewidth=linewidth)
+def plot_point_with_label(point, label, offset=(0.04, 0.04)):
+    """
+    Draw a single point and display its label (e.g., 'A', 'B', etc.).
+    """
+    x, y = point
+    plt.plot(x, y, "ro")  # 'ro' plots a red dot
+    plt.text(x + offset[0], y + offset[1], label, fontsize=12, fontweight="bold")
 
 
-def plot_circle(center, radius, color="gray", linestyle="--"):
-    """Draw the outline of a full circle given its center and radius."""
+def plot_line(A, B):
+    """
+    Draw a straight line segment connecting point A to point B.
+    """
+    plt.plot([A[0], B[0]], [A[1], B[1]], "b-")  # 'b-' draws a solid blue line
+
+
+def plot_circle(center, radius):
+    """
+    Draw a full circle given its center (x, y) and radius.
+    """
     angles = np.linspace(0, 2 * pi, 500)
     x_vals = center[0] + radius * np.cos(angles)
     y_vals = center[1] + radius * np.sin(angles)
-    plt.plot(x_vals, y_vals, color=color, linestyle=linestyle, alpha=0.7)
+    plt.plot(x_vals, y_vals, "g--", alpha=0.6)  # 'g--' draws a dashed green circle
 
 
-def label_point(name, point, offset=(0.3, 0.3)):
-    """
-    Plot a marker for a point and display both its name and coordinate values.
-    """
-    x, y = point
-    plt.plot(x, y, marker="o", color="blue", markersize=5)
-    coord_text = f"{name} ({x:.2f}, {y:.2f})"
-    plt.annotate(
-        coord_text,
-        (x, y),
-        textcoords="offset points",
-        xytext=(offset[0] * 15, offset[1] * 15),
-        fontsize=9,
-        fontweight="bold",
-    )
+# =============================================================================
+# Simulation / Visualization Loop
+# =============================================================================
 
+plt.figure(figsize=(7, 7))
 
-# -----------------------------------------------------------------------------
-# Main Simulation / Search Loop
-# -----------------------------------------------------------------------------
+for frame in range(100):
+    plt.cla()  # Clear previous frame
 
-AB = 10.0  # Set an arbitrary base segment length for AB
+    # Randomly search for a valid geometric configuration
+    while True:
+        AB = AD = 1.0
 
-# Use random sampling to search for a configuration that satisfies:
-# 1. Cyclic quadrilateral ABCD with AB = AD
-# 2. AB + BC = CD
-while True:
-    gamma = uniform(pi / 4, pi / 2)
-    alpha = pi / 2 - gamma
+        # Choose angle theta for vertex D in the upper half-plane (pi/2 to pi)
+        theta = uniform(pi / 2, pi)
 
-    point_a = (0.0, 0.0)
-    point_b = (AB, 0.0)
-    point_d = (AB * cos(2 * gamma), AB * sin(2 * gamma))
+        # Fix vertex A at the origin, B along the positive x-axis
+        A = (0.0, 0.0)
+        B = (AB, 0.0)
+        D = (AD * cos(theta), AD * sin(theta))
 
-    # Determine the circumcircle through A, B, and D
-    center, radius = define_circle_from_points(point_a, point_b, point_d)
+        # Circumscribe the circle through triangle ABD
+        circumcenter, r, ok = circle_through_points(A, B, D)
+        if not ok:
+            continue
 
-    # Line through B at angle (pi/2 - alpha)
-    slope_m = tan(pi / 2 - alpha)
-    intercept_b = point_b[1] - slope_m * point_b[0]
+        # Sample point C along the lower arc of the circumcircle
+        min_angle = -atan(2 * circumcenter[1] / AB)
+        gamma = uniform(min_angle, 0)
+        C = (circumcenter[0] + r * cos(gamma), circumcenter[1] + r * sin(gamma))
 
-    # Find intersection of this ray with the circumcircle to locate vertex C
-    _, point_c, found = line_circle_intersection(center, radius, (slope_m, intercept_b))
+        # Check problem condition: AB + BC = CD  =>  CD - BC = AB
+        d1 = distance(C, D)  # length of CD
+        d2 = distance(B, C)  # length of BC
 
-    if not found:
-        continue
+        # Accept if CD - BC is within 0.01% tolerance of AB
+        if AB * 0.9999 < (d1 - d2) < AB * 1.0001:
+            break
 
-    dist_ad = distance(point_a, point_d)
-    dist_cd = distance(point_c, point_d)
-    dist_ac = distance(point_a, point_c)
-    dist_bc = distance(point_b, point_c)
+    # Calculate angle CDA using triangle ACD side lengths
+    CDA_rad, _ = law_of_cosines(AD, d1, distance(A, C))
+    CDA_deg = degrees(CDA_rad)
 
-    # Check whether the problem condition AB + BC == CD is satisfied
-    if abs(dist_cd - (AB + dist_bc)) < 0.0001:
-        break
+    # Plot the circumcircle and quadrilateral edges
+    plot_circle(circumcenter, r)
+    plot_line(A, B)
+    plot_line(B, C)
+    plot_line(C, D)
+    plot_line(D, A)
 
-# Compute angle CDA using the Law of Cosines on triangle ACD
-angle_cda, _ = law_of_cosines(dist_ad, dist_cd, dist_ac)
+    # Plot points and their corresponding letter labels
+    plot_point_with_label(A, "A", offset=(-0.06, -0.06))
+    plot_point_with_label(B, "B", offset=(0.04, -0.06))
+    plot_point_with_label(C, "C", offset=(0.04, -0.06))
+    plot_point_with_label(D, "D", offset=(-0.06, 0.04))
 
-# -----------------------------------------------------------------------------
-# Visualization
-# -----------------------------------------------------------------------------
+    # Configure plot appearance
+    plt.title(f"Simulation {frame + 1}/100: ∠CDA = {CDA_deg:.2f}°", fontsize=13)
+    plt.axis("equal")
+    plt.axis("off")
+    plt.pause(0.8)
 
-plt.figure(figsize=(9, 8))
-
-# Draw quadrilateral edges and diagonal AC
-plot_line(point_a, point_b, color="black", linewidth=2)
-plot_line(point_a, point_d, color="black", linewidth=2)
-plot_line(point_b, point_c, color="black", linewidth=2)
-plot_line(point_c, point_d, color="black", linewidth=2)
-plot_line(point_a, point_c, color="darkorange", linestyle=":", linewidth=1.5)
-
-# Draw the circumscribed circle
-plot_circle(center, radius)
-
-# Add coordinate and vertex labels
-label_point("A", point_a, offset=(-1.0, -1.0))
-label_point("B", point_b, offset=(0.5, -1.0))
-label_point("C", point_c, offset=(0.5, 0.5))
-label_point("D", point_d, offset=(-1.2, 0.5))
-
-plt.title(f"Cyclic Quadrilateral ABCD\nAngle CDA = {degrees(angle_cda):.1f}° (Exact: 60°)", fontsize=13)
-plt.axis("equal")
-plt.axis("off")
-plt.tight_layout()
 plt.show()
